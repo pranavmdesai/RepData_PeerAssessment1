@@ -5,16 +5,36 @@ output:
     keep_md: true
 ---
 
-
 ## Loading and preprocessing the data
-
+```{r loadactivity}
+library(data.table)
+activity <- read.csv("activity.csv", header = T)
+activity <- data.table(activity)
+```
 
 
 ## What is mean total number of steps taken per day?
+```{r extracting total activity per day, echo=FALSE}
+#Let's calculate the total steps per day 
+activity[,totalperday:= sum(steps), by=date]
 
+#Let's extract out the individual dates and associate the unique activity with that day
+date_activity <- as.data.frame(activity$date)
+date_activity <- cbind(date_activity, activity$totalperday)
+date_activity <- unique(date_activity)
+hist(activity$totalperday, xlab = "Total Activity per day" )
+```
 
+```{r meanTotalSteps, echo=F}
+meanTotalSteps = mean(activity$totalperday,na.rm = T)
+medianTotalSteps = median(activity$totalperday, na.rm=T)
+```
 
 ## What is the average daily activity pattern?
+```{r calculating average steps per day}
+activity[,avgperinterval:= mean(activity$steps, na.rm=T), by=interval]
+
+
 
 
 
