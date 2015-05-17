@@ -8,6 +8,7 @@ output:
 ## Loading and preprocessing the data
 ```{r loadactivity}
 library(data.table)
+library(reshape2)
 activity <- read.csv("activity.csv", header = T)
 activity <- data.table(activity)
 ```
@@ -32,9 +33,10 @@ medianTotalSteps = median(activity$totalperday, na.rm=T)
 
 ## What is the average daily activity pattern?
 ```{r calculating average steps per day}
-activity[,avgperinterval:= mean(activity$steps, na.rm=T), by=interval]
-
-
+melted <- melt(activity, id.vars = "interval", measure.vars="steps", value.name = "steps", na.rm = T)
+average_daily_activity <- dcast(melted,interval~variable, mean)
+plot(type="l",y=average_daily_activity$steps, x=average_daily_activity$interval, xlab="5 min interval", ylab="Average Steps Taken")
+average_daily_activity[which.max(average_daily_activity$steps),]
 
 
 
