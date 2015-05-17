@@ -7,41 +7,68 @@ output:
 
 ## Loading and preprocessing the data
 ```{r loadactivity}
-library(data.table)
 library(reshape2)
+library(lubridate)
 activity <- read.csv("activity.csv", header = T)
-activity <- data.table(activity)
 ```
 
-
+## Let's melt the data so that we can calculate total steps per day and average steps across intervals later
+```{r }
+melted_days <- melt(activity, id.vars = "date", value.name = "steps")
+melted_intervals <- melt(activity, id.vars = "interval", measure.vars="steps", value.name = "steps", na.rm = T)
+```
 ## What is mean total number of steps taken per day?
 ```{r extracting total activity per day, echo=FALSE}
 #Let's calculate the total steps per day 
-activity[,totalperday:= sum(steps), by=date]
+total_steps <- dcast(melted_days, date~variable, sum)
 
-#Let's extract out the individual dates and associate the unique activity with that day
-date_activity <- as.data.frame(activity$date)
-date_activity <- cbind(date_activity, activity$totalperday)
-date_activity <- unique(date_activity)
-hist(activity$totalperday, xlab = "Total Activity per day" )
+#Let's draw a histogram of the steps. Breaks = 25, so that each bar represents a 1000
+hist(total_steps$steps, xlab = "Total Activity per day", breaks=25 )
 ```
 
 ```{r meanTotalSteps, echo=F}
-meanTotalSteps = mean(activity$totalperday,na.rm = T)
-medianTotalSteps = median(activity$totalperday, na.rm=T)
+meanTotalSteps = mean(total_steps$steps,na.rm = T)
+medianTotalSteps = median(total_steps$steps, na.rm=T)
 ```
 
 ## What is the average daily activity pattern?
 ```{r calculating average steps per day}
-melted <- melt(activity, id.vars = "interval", measure.vars="steps", value.name = "steps", na.rm = T)
-average_daily_activity <- dcast(melted,interval~variable, mean)
+average_daily_activity <- dcast(melted_intervals,interval~variable, mean)
+
+#Lets plot this so that we can visualize what is the most prominent interval for activities
 plot(type="l",y=average_daily_activity$steps, x=average_daily_activity$interval, xlab="5 min interval", ylab="Average Steps Taken")
-average_daily_activity[which.max(average_daily_activity$steps),]
+average_daily_activity[which.max(average_daily_activity$steps),]$interval
 
 
 
 ## Imputing missing values
+###Let's calculate the total number of rows with missing values
+length(which(!complete.cases(activity)))
 
+###Now we will use a simple recoding. We will take the mean total steps and divide it by 288 and replace the NA with this value
+meanIntervalSteps <- meanTotalSteps/288
+activity_recoded <- activity
+activity_recoded$steps[is.na(activity_recoded$steps)] <- meanIntervalSteps
+
+###Now we will calculate the total steps and the mean steps using these values
+```{r }
+melted_days_recoded <- melt(activity_recoded, id.vars = "date", value.name = "steps")
+melted_intervals_recoded <- melt(activity_recoded, id.vars = "interval", measure.vars="steps", value.name = "steps", na.rm = T)
+```
+```{r extracting total activity per day with recoded values, echo=FALSE}
+#Let's calculate the total steps per day 
+total_steps_recoded <- dcast(melted_days_recoded, date~variable, sum)
+
+#Let's draw a histogram of the steps. Breaks = 25, so that each bar represents a 1000
+hist(total_steps_recoded$steps, xlab = "Total Activity per day", breaks=25 )
+```
+
+```{r meanTotalStepsRecoded, echo=F}
+meanTotalStepsRecoded = mean(total_steps_recoded$steps,na.rm = T)
+medianTotalStepsRecoded = median(total_steps_recoded$steps, na.rm=T)
+```
+### We see that there are no differences in the mean and median values when you recode missing values
+### However the distribution now has a lot of values at the mean and looks strongly normalized
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
