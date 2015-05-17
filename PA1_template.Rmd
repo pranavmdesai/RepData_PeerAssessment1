@@ -26,6 +26,7 @@ total_steps <- dcast(melted_days, date~variable, sum)
 hist(total_steps$steps, xlab = "Total Activity per day", breaks=25 )
 ```
 
+##Lets calculate the mean and median for the total steps
 ```{r meanTotalSteps, echo=F}
 meanTotalSteps = mean(total_steps$steps,na.rm = T)
 medianTotalSteps = median(total_steps$steps, na.rm=T)
@@ -37,8 +38,13 @@ average_daily_activity <- dcast(melted_intervals,interval~variable, mean)
 
 #Lets plot this so that we can visualize what is the most prominent interval for activities
 plot(type="l",y=average_daily_activity$steps, x=average_daily_activity$interval, xlab="5 min interval", ylab="Average Steps Taken")
+```
+
+##Let's find the interval with the max average daily value
+```{r }
 average_daily_activity[which.max(average_daily_activity$steps),]$interval
 
+```
 
 
 ## Imputing missing values
