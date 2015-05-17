@@ -29,6 +29,7 @@ melted_intervals <- melt(activity, id.vars = "interval", measure.vars="steps", v
 
 ![](PA1_template_files/figure-html/extracting total activity per day-1.png) 
 
+##Lets calculate the mean and median for the total steps
 
 
 ## What is the average daily activity pattern?
@@ -48,6 +49,8 @@ plot(type="l",y=average_daily_activity$steps, x=average_daily_activity$interval,
 
 ![](PA1_template_files/figure-html/calculating average steps per day-1.png) 
 
+##Let's find the interval with the max average daily value
+
 ```r
 average_daily_activity[which.max(average_daily_activity$steps),]$interval
 ```
@@ -56,9 +59,11 @@ average_daily_activity[which.max(average_daily_activity$steps),]$interval
 ## [1] 835
 ```
 
-```r
+
 ## Imputing missing values
 ###Let's calculate the total number of rows with missing values
+
+```r
 length(which(!complete.cases(activity)))
 ```
 
@@ -66,19 +71,23 @@ length(which(!complete.cases(activity)))
 ## [1] 2304
 ```
 
+
+###Now we will use a simple recoding. We will take the mean total steps and divide it by 288 and replace the ###NA with this value
+
 ```r
-###Now we will use a simple recoding. We will take the mean total steps and divide it by 288 and replace the NA with this value
 meanIntervalSteps <- meanTotalSteps/288
 activity_recoded <- activity
 activity_recoded$steps[is.na(activity_recoded$steps)] <- meanIntervalSteps
+```
 
 ###Now we will calculate the total steps and the mean steps using these values
-```
 
 ```r
 melted_days_recoded <- melt(activity_recoded, id.vars = "date", value.name = "steps")
 melted_intervals_recoded <- melt(activity_recoded, id.vars = "interval", measure.vars="steps", value.name = "steps", na.rm = T)
 ```
+
+
 
 ```
 ## Using steps as value column: use value.var to override.

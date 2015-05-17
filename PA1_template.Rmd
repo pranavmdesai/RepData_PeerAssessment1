@@ -49,18 +49,25 @@ average_daily_activity[which.max(average_daily_activity$steps),]$interval
 
 ## Imputing missing values
 ###Let's calculate the total number of rows with missing values
+```{r}
 length(which(!complete.cases(activity)))
+```
 
-###Now we will use a simple recoding. We will take the mean total steps and divide it by 288 and replace the NA with this value
+
+###Now we will use a simple recoding. We will take the mean total steps and divide it by 288 and replace the ###NA with this value
+```{r}
 meanIntervalSteps <- meanTotalSteps/288
 activity_recoded <- activity
 activity_recoded$steps[is.na(activity_recoded$steps)] <- meanIntervalSteps
+```
 
 ###Now we will calculate the total steps and the mean steps using these values
 ```{r }
 melted_days_recoded <- melt(activity_recoded, id.vars = "date", value.name = "steps")
 melted_intervals_recoded <- melt(activity_recoded, id.vars = "interval", measure.vars="steps", value.name = "steps", na.rm = T)
 ```
+
+
 ```{r extracting total activity per day with recoded values, echo=FALSE}
 #Let's calculate the total steps per day 
 total_steps_recoded <- dcast(melted_days_recoded, date~variable, sum)
